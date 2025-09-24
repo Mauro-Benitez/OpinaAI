@@ -14,11 +14,16 @@ namespace Feedback.Infrastructure
     {
         private readonly AppDbContext _context;
 
-        public async Task CreateAsync(FeedbackNps feedback)
+        public FeedbackNpsRepository(AppDbContext context)
         {
-            await _context.Feedbacks.AddAsync(feedback);
-            await _context.SaveChangesAsync();
-
+            _context = context;
+        }
+        public async Task<FeedbackNps> AddAsync(FeedbackNps feedback)
+        {
+            await _context.Feedbacks.AddAsync(feedback);           
+            var result = await GetFeedbackByIdAsync(feedback.Id);      
+            
+            return result;
         }
 
         public async Task DeleteAsync(Guid id)
@@ -29,24 +34,36 @@ namespace Feedback.Infrastructure
                 throw new ArgumentException("Feedback not found");
 
             _context.Feedbacks.Remove(feedback);
-            await _context.SaveChangesAsync();
-        }
+           
+        }  
 
-        public Task<List<FeedbackNps>> GetAllAsync()
-        {
-            return _context.Feedbacks.ToListAsync();
-        }
-
-        public Task<List<FeedbackNps>> GetFeedbacksByCustomerIdAsync(string customerId)
+        public Task<List<FeedbackNps?>> GetFeedbacksByCustomerIdAsync(string customerId)
         {
             var feedbacks = _context.Feedbacks
                 .Where(f => f.UserId == customerId)
+                .AsNoTracking()
+                .ToListAsync();
+         
+            return feedbacks;
+        }
+
+        public Task<FeedbackNps?> GetFeedbackByIdAsync(Guid Id)
+        {
+            var feedback = _context.Feedbacks
+                .FirstOrDefaultAsync(f => f.Id == Id);
+                      
+            return feedback;
+
+        }
+
+        public Task<List<FeedbackNps?>> GetFeedbacksByPeriodAsync(DateTime startDate, DateTime endDate)
+        {
+            var result = _context.Feedbacks
+                .Where(f => f.SubmittedDate >= startDate && f.SubmittedDate <= endDate)
+                .AsNoTracking()
                 .ToListAsync();
 
-            if (feedbacks is null)
-                throw new ArgumentException("Feedback not found");
-
-            return feedbacks;
+            return result;
         }
     }
 }

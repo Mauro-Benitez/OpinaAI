@@ -4,9 +4,11 @@ namespace Feedback.Domain.Repositories
 {
     public interface IFeedbackNpsRepository
     {
-        Task<List<FeedbackNps>> GetAllAsync();
         Task<List<FeedbackNps>> GetFeedbacksByCustomerIdAsync(string customerId);
-        Task CreateAsync(FeedbackNps feedback);
+        Task<FeedbackNps> GetFeedbackByIdAsync(Guid Id);
+        Task<FeedbackNps> AddAsync(FeedbackNps feedback);
         Task DeleteAsync(Guid id);
+        Task<List<FeedbackNps>> GetFeedbacksByPeriodAsync(DateTime startDate, DateTime endDate);
+
     }
 }

@@ -9,11 +9,11 @@ namespace Feedback.Domain.Entities
     public class FeedbackNps
     {
 
-        public Guid Id { get; set; }
-        public string UserId { get; set; }
-        public int Score { get; set; }
-        public string? Comment { get; set; }
-        public DateTime SubmittedDate { get; set; }
+        public Guid Id { get; private set; }
+        public string UserId { get; private set; }
+        public int Score { get; private set; }
+        public string? Comment { get; private set; }
+        public DateTime SubmittedDate { get; private set; }
 
         public FeedbackNps()
         {

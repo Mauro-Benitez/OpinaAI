@@ -1,3 +1,4 @@
+using Feedback.Application.Services;
 using Feedback.Domain.Repositories;
 using Feedback.Infrastructure;
 using Feedback.Infrastructure.Context;
@@ -12,6 +13,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IFeedbackNpsRepository, FeedbackNpsRepository>();
+builder.Services.AddScoped<IFeedbackNpsService, FeedbackNpsService>();
 
 // Add services to the container.
 
