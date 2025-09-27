@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Feedback.Infrastructure
+namespace Feedback.Infrastructure.Persistence
 {
     public class FeedbackNpsRepository : IFeedbackNpsRepository
     {
