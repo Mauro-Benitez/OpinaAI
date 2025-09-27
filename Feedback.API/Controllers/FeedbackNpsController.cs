@@ -1,5 +1,5 @@
 ﻿using Feedback.Application;
-using Feedback.Application.Services;
+using Feedback.Application.Interfaces;
 using Feedback.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
 

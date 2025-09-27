@@ -1,7 +1,9 @@
+using Feedback.Application.Interfaces;
 using Feedback.Application.Services;
 using Feedback.Domain.Repositories;
-using Feedback.Infrastructure;
 using Feedback.Infrastructure.Context;
+using Feedback.Infrastructure.Persistence;
+using Feedback.Infrastructure.Workers;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -14,6 +16,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IFeedbackNpsRepository, FeedbackNpsRepository>();
 builder.Services.AddScoped<IFeedbackNpsService, FeedbackNpsService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
+//Add NpsProcessingWorker como hosted service
+builder.Services.AddHostedService<NpsProcessingWorker>();
 
 // Add services to the container.
 

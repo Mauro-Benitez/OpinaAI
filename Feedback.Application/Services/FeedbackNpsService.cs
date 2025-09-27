@@ -1,6 +1,6 @@
-﻿using Feedback.Domain.Entities;
+﻿using Feedback.Application.Interfaces;
+using Feedback.Domain.Entities;
 using Feedback.Domain.Repositories;
-using Feedback.Infrastructure.Context;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,12 +13,12 @@ namespace Feedback.Application.Services
     public class FeedbackNpsService : IFeedbackNpsService
     {
         private readonly IFeedbackNpsRepository _feedbackNpsRepository;
-        private readonly AppDbContext _appDbContext;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public FeedbackNpsService(IFeedbackNpsRepository feedbackNpsRepository, AppDbContext appDbContext)
+        public FeedbackNpsService(IFeedbackNpsRepository feedbackNpsRepository, IUnitOfWork unitOfWork)
         {
             _feedbackNpsRepository = feedbackNpsRepository;
-            _appDbContext = appDbContext;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<FeedbackNpsDTO> CreateFeedbackAsync(FeedbackNpsDTO feedbackDto)
@@ -30,7 +30,7 @@ namespace Feedback.Application.Services
             );
 
             var result =  await _feedbackNpsRepository.AddAsync(feedback);
-            await _appDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             return MapToDTO(result);
 
@@ -46,7 +46,7 @@ namespace Feedback.Application.Services
             }
 
             await _feedbackNpsRepository.DeleteAsync(id);
-            await _appDbContext.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
 
         }
