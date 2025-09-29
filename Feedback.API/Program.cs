@@ -18,8 +18,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IFeedbackNpsRepository, FeedbackNpsRepository>();
 builder.Services.AddScoped<IFeedbackNpsService, FeedbackNpsService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+<<<<<<< HEAD
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
+=======
+
+
+//Add NpsProcessingWorker como hosted service
+builder.Services.AddHostedService<NpsProcessingWorker>();
+>>>>>>> a9fb3b7aab2552b65667cbd05f36e0cca3067de0
 
 
 //Add NpsProcessingWorker como hosted service

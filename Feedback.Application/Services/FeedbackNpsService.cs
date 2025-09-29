@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 ﻿using Feedback.Application.DTO;
 using Feedback.Application.InputModels;
 using Feedback.Application.Interfaces;
+=======
+﻿using Feedback.Application.Interfaces;
+>>>>>>> a9fb3b7aab2552b65667cbd05f36e0cca3067de0
 using Feedback.Domain.Entities;
 using Feedback.Domain.Repositories;
 using System;
