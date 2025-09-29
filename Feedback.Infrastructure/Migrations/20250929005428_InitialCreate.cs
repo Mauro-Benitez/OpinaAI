@@ -12,7 +12,7 @@ namespace Feedback.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "feedbacks",
+                name: "Feedbacks",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -23,7 +23,22 @@ namespace Feedback.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_feedbacks", x => x.Id);
+                    table.PrimaryKey("PK_Feedbacks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Reports",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ReportMonth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    FinalNpsScore = table.Column<double>(type: "double precision", nullable: false),
+                    ProcessingDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    FileUrl = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Reports", x => x.Id);
                 });
         }
 
@@ -31,7 +46,10 @@ namespace Feedback.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "feedbacks");
+                name: "Feedbacks");
+
+            migrationBuilder.DropTable(
+                name: "Reports");
         }
     }
 }

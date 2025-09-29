@@ -20,10 +20,8 @@ namespace Feedback.Infrastructure.Persistence
         }
         public async Task<FeedbackNps> AddAsync(FeedbackNps feedback)
         {
-            await _context.Feedbacks.AddAsync(feedback);           
-            var result = await GetFeedbackByIdAsync(feedback.Id);      
-            
-            return result;
+            await _context.Feedbacks.AddAsync(feedback);                 
+            return feedback;
         }
 
         public async Task DeleteAsync(Guid id)

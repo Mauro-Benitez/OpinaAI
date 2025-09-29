@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Feedback.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250917000251_InitialCreate")]
+    [Migration("20250929005428_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -46,7 +46,30 @@ namespace Feedback.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("feedbacks", (string)null);
+                    b.ToTable("Feedbacks", (string)null);
+                });
+
+            modelBuilder.Entity("Feedback.Domain.Entities.Report", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FileUrl")
+                        .HasColumnType("text");
+
+                    b.Property<double>("FinalNpsScore")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("ProcessingDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ReportMonth")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Reports");
                 });
 #pragma warning restore 612, 618
         }

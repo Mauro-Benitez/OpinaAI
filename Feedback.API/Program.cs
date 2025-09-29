@@ -9,14 +9,17 @@ using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//EF
+//Config EF
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+//injeção de dependência
 builder.Services.AddScoped<IFeedbackNpsRepository, FeedbackNpsRepository>();
 builder.Services.AddScoped<IFeedbackNpsService, FeedbackNpsService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 
 //Add NpsProcessingWorker como hosted service

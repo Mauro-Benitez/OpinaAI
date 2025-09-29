@@ -31,7 +31,8 @@ namespace Feedback.Domain.Entities
             {
                 throw new ArgumentOutOfRangeException(nameof(score), "Score must be between 0 and 10.");
             }
-        
+            
+            Id = Guid.NewGuid();
             UserId = userId;
             Score = score;
             Comment = comment;

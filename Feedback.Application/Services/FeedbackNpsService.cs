@@ -1,4 +1,6 @@
-﻿using Feedback.Application.Interfaces;
+﻿using Feedback.Application.DTO;
+using Feedback.Application.InputModels;
+using Feedback.Application.Interfaces;
 using Feedback.Domain.Entities;
 using Feedback.Domain.Repositories;
 using System;
@@ -21,12 +23,12 @@ namespace Feedback.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<FeedbackNpsDTO> CreateFeedbackAsync(FeedbackNpsDTO feedbackDto)
+        public async Task<FeedbackNpsDTO> CreateFeedbackAsync(FeedbackInput feedbackInput)
         {
            var feedback = new FeedbackNps(
-                feedbackDto.UserId,
-                feedbackDto.Score,
-                feedbackDto.Comment
+                feedbackInput.UserId,
+                feedbackInput.Score,
+                feedbackInput.Comment
             );
 
             var result =  await _feedbackNpsRepository.AddAsync(feedback);
@@ -85,7 +87,7 @@ namespace Feedback.Application.Services
         {
             return new FeedbackNpsDTO
             {
-                Id = feedback.Id,
+                                                                                                                                                                                                                                     Id = feedback.Id,
                 UserId = feedback.UserId,
                 Score = feedback.Score,
                 Comment = feedback.Comment,

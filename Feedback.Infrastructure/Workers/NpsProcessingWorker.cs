@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Feedback.Application.Interfaces;
+using Feedback.Application.Services;
+using Feedback.Domain.Entities;
 using Feedback.Domain.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Runtime.InteropServices;
-using Feedback.Application.Services;
+using System.Text;
+using System.Threading.Tasks;
 
 
 namespace Feedback.Infrastructure.Workers
@@ -40,13 +42,23 @@ namespace Feedback.Infrastructure.Workers
                     using(var scope = _serviceScopeFactory.CreateScope())
                     {
                         var feedbackRepository = scope.ServiceProvider.GetRequiredService<IFeedbackNpsRepository>();
+                        var reportRepository = scope.ServiceProvider.GetRequiredService<IReportRepository>(); 
+                        var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
                         var calculator = new NpsCalculatorService();
 
 
                         //Define o periodo, por exemplo o mes anterior
                         var today = DateTime.UtcNow;
-                        var startDate = new DateTime(today.Year, today.Month, 1).AddMonths(-1);
-                        var endDate = new DateTime(today.Year, today.Month, 1).AddTicks(-1);
+
+                        //Pegamos o primeiro dia do mês atual (ex: 01/09/2025)
+                        var firstDayOfCurrentMonth = new DateTime(today.Year, today.Month, 1);
+
+                        //Subtraimos um mês para obter o primeiro dia do mês anterior (ex: 01/08/2025)
+                        var firstDayOfPreviusMonth = firstDayOfCurrentMonth.AddMonths(-1);
+
+                        //Especificamos que as datas são UTC
+                        var startDate = DateTime.SpecifyKind(firstDayOfPreviusMonth, DateTimeKind.Utc);
+                        var endDate = DateTime.SpecifyKind(firstDayOfCurrentMonth, DateTimeKind.Utc);
 
                         // Busca os feedbacks do período
                         var feedbacks = await feedbackRepository.GetFeedbacksByPeriodAsync(startDate, endDate);
@@ -58,7 +70,20 @@ namespace Feedback.Infrastructure.Workers
 
                             _logger.LogInformation("NPS Calculado para o período de {StartDate} a {EndDate}: {Score}", startDate.ToShortDateString(), endDate.ToShortDateString(), npsScore.ToString("F2"));
 
-                            //Salvar o resultado no banco de dados na tabela de relatórios...
+                            // ----- Logica para salvar o relatório
+
+                            // 1. Cria a nova entidade de relatório
+                            var report = new Report(startDate, npsScore);
+
+                            // 2. Adiciona o relatório ao repositório
+                            await reportRepository.AddAsync(report);
+
+                            // 3. Salva as mudanças no banco de dados
+                            await unitOfWork.SaveChangesAsync(stoppingToken);
+
+                            _logger.LogInformation("Relatório do mês {Month} salvo com sucesso.", startDate.ToString("yyyy-MM"));
+
+                            // ------------------------------------
                         }
                         else
                         {
@@ -74,7 +99,7 @@ namespace Feedback.Infrastructure.Workers
                 }
 
                 // Espera 24 horas para a próxima execução
-                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
             }
 
             _logger.LogInformation("NPS Processing Worker está parando.");

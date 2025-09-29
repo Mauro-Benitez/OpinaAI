@@ -11,15 +11,15 @@ namespace Feedback.Infrastructure.Context
         }
 
         public DbSet<FeedbackNps> Feedbacks { get; set; }
+        public DbSet<Report> Reports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var feedbackEntity = modelBuilder.Entity<FeedbackNps>();
 
-            feedbackEntity.HasKey(f => f.Id);
-            feedbackEntity.Property(f => f.Id).ValueGeneratedOnAdd();
+            feedbackEntity.HasKey(f => f.Id);            
 
-            modelBuilder.Entity<FeedbackNps>().ToTable("feedbacks");
+            modelBuilder.Entity<FeedbackNps>().ToTable("Feedbacks");
 
         }
 

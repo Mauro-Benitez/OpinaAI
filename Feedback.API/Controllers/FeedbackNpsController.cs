@@ -1,6 +1,5 @@
-﻿using Feedback.Application;
+﻿using Feedback.Application.InputModels;
 using Feedback.Application.Interfaces;
-using Feedback.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Feedback.API.Controllers
@@ -9,19 +8,18 @@ namespace Feedback.API.Controllers
     [Route("[controller]")]
     public class FeedbackNpsController : Controller
     {
-        private readonly IFeedbackNpsService _feedbackNpsService;
-        private readonly IFeedbackNpsRepository _feedbackNpsRepository;
+        private readonly IFeedbackNpsService _feedbackNpsService;      
 
-        public FeedbackNpsController(IFeedbackNpsService feedbackNpsService, IFeedbackNpsRepository feedbackNpsRepository)
+        public FeedbackNpsController(IFeedbackNpsService feedbackNpsService)
         {
             _feedbackNpsService = feedbackNpsService;
-            _feedbackNpsRepository = feedbackNpsRepository;
+           
         }
 
-        [HttpPost]
+        [HttpPost("NPS")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Create([FromBody] FeedbackNpsDTO feedback)
+        public async Task<IActionResult> Create([FromBody] FeedbackInput feedback)
         {
             if (feedback == null) return BadRequest();
 
