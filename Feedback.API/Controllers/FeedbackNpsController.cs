@@ -1,11 +1,5 @@
-<<<<<<< HEAD
 ﻿using Feedback.Application.InputModels;
 using Feedback.Application.Interfaces;
-=======
-﻿using Feedback.Application;
-using Feedback.Application.Interfaces;
-using Feedback.Domain.Repositories;
->>>>>>> a9fb3b7aab2552b65667cbd05f36e0cca3067de0
 using Microsoft.AspNetCore.Mvc;
 
 namespace Feedback.API.Controllers
