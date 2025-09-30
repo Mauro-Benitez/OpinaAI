@@ -1,0 +1,56 @@
+.feedback-form-container {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.score-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: 2rem 0;
+}
+
+.score-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.score-btn.selected {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.comment-section {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.comment-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.comment-section textarea {
+  width: 100%;
+  padding: 0.5rem;
+  box-sizing: border-box; /* Garante que o padding não aumente a largura total */
+}
+
+.submit-btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
