@@ -1,15 +1,48 @@
-import React, { useState } from 'react'; // 1. Importe o useState
-import './FeedbackForm.css'; // Vamos criar este arquivo para um estilo básico
+// src/components/FeedbackForm.js
+import React, { useState } from 'react';
+import axios from 'axios'; // Importe o axios
+import './FeedbackForm.css';
 
 function FeedbackForm() {
-  // 2. Crie os estados para guardar os dados do formulário
-  const [score, setScore] = useState(null); // 'null' significa que nenhuma nota foi selecionada ainda
+  const [score, setScore] = useState(null);
   const [comment, setComment] = useState('');
+  const [statusMessage, setStatusMessage] = useState(''); // Estado para mensagens de sucesso/erro
 
-  const handleSubmit = (event) => {
-    event.preventDefault(); // Impede o recarregamento padrão da página ao submeter
-    // Lógica de envio para a API virá aqui
-    alert(`Nota: ${score}\nComentário: ${comment}`);
+  //Transforma a função em async para usar await
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    // Validação simples para garantir que uma nota foi selecionada
+    if (score === null) {
+      setStatusMessage('Por favor, selecione uma nota de 0 a 10.');
+      return;
+    }
+
+    setStatusMessage('Enviando feedback...');
+
+    // Montando o objeto de dados (payload)
+    const feedbackData = {      
+      userId: 'user-frontend-mvp', 
+      score: score,
+      comment: comment,
+    };
+
+    try {
+      //  Faz a chamada POST para a API back-end
+      const response = await axios.post('https://localhost:7271/api/FeedbackNps', feedbackData);
+
+      // Lidar com a resposta de sucesso
+      if (response.status === 201) { // 201 Created é o status que nossa API retorna
+        setStatusMessage('Obrigado pelo seu feedback!');
+        // Limpa o formulário após o envio
+        setScore(null);
+        setComment('');
+      }
+    } catch (error) {
+      // Lidard com erros
+      console.error("Ocorreu um erro ao enviar o feedback:", error);
+      setStatusMessage('Falha ao enviar o feedback. Tente novamente mais tarde.');
+    }
   };
 
   return (
@@ -17,7 +50,6 @@ function FeedbackForm() {
       <h2>Deixe seu Feedback</h2>
       <p>Em uma escala de 0 a 10, o quão provável você é de nos recomendar?</p>
       
-      {/* Container para os botões de nota */}
       <div className="score-buttons">
         {[...Array(11).keys()].map((number) => (
           <button
@@ -31,7 +63,6 @@ function FeedbackForm() {
         ))}
       </div>
 
-      {/* Área de texto para o comentário */}
       <div className="comment-section">
         <label htmlFor="comment">Deixe um comentário (opcional):</label>
         <textarea
@@ -42,10 +73,12 @@ function FeedbackForm() {
         />
       </div>
 
-      {/* Botão de envio */}
       <button type="submit" onClick={handleSubmit} className="submit-btn">
         Enviar Feedback
       </button>
+
+      {/* Exibe a mensagem de status para o usuário */}
+      {statusMessage && <p className="status-message">{statusMessage}</p>}
     </div>
   );
 }
