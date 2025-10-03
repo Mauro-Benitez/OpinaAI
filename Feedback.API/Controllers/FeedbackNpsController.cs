@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Feedback.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class FeedbackNpsController : Controller
     {
         private readonly IFeedbackNpsService _feedbackNpsService;      
@@ -16,7 +16,7 @@ namespace Feedback.API.Controllers
            
         }
 
-        [HttpPost("NPS")]
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Create([FromBody] FeedbackInput feedback)
@@ -26,7 +26,8 @@ namespace Feedback.API.Controllers
             try
             {
                 var result = await _feedbackNpsService.CreateFeedbackAsync(feedback);
-                return Ok(result);
+                return StatusCode(201, result);
+
             }
             catch (Exception ex)
             {
