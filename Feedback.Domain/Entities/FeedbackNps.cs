@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Feedback.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,7 @@ namespace Feedback.Domain.Entities
         public int Score { get; private set; }
         public string? Comment { get; private set; }
         public DateTime SubmittedDate { get; private set; }
+        public Sentiment Sentiment { get; private set; } 
 
         public FeedbackNps()
         {
@@ -37,6 +39,12 @@ namespace Feedback.Domain.Entities
             Score = score;
             Comment = comment;
             SubmittedDate = DateTime.UtcNow;
+            Sentiment = Sentiment.NotAnalyzed;  
+        }
+
+        public void SetSentiment(Sentiment sentiment)
+        {
+            Sentiment = sentiment;
         }
     }
 }

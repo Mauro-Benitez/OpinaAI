@@ -63,5 +63,15 @@ namespace Feedback.Infrastructure.Persistence
 
             return result;
         }
+
+        public async Task<IEnumerable<FeedbackNps>> GetUnanalyzedFeedbacksAsync()
+        {
+            var result = await _context.Feedbacks
+                .Where(f => f.Sentiment == Domain.Enums.Sentiment.NotAnalyzed && f.Comment != null && f.Comment != "") //Retorna Feedbacks ainda não analisados e que estão com comentários
+                .Take(50) //Pega em lotes para não sobrecarregar a API de IA
+                .ToListAsync();
+
+            return result;
+        }
     }
 }

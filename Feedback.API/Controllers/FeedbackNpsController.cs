@@ -1,5 +1,5 @@
 ﻿using Feedback.Application.InputModels;
-using Feedback.Application.Interfaces;
+using Feedback.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Feedback.API.Controllers

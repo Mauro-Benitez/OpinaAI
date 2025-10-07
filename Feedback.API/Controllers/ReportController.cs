@@ -1,5 +1,5 @@
 ﻿using Feedback.Application.DTO;
-using Feedback.Application.Interfaces;
+using Feedback.Application.Interfaces.Services;
 using Feedback.Domain.Entities;
 using Feedback.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;

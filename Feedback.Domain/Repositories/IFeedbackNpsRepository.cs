@@ -9,6 +9,6 @@ namespace Feedback.Domain.Repositories
         Task<FeedbackNps> AddAsync(FeedbackNps feedback);
         Task DeleteAsync(Guid id);
         Task<List<FeedbackNps>> GetFeedbacksByPeriodAsync(DateTime startDate, DateTime endDate);
-
+        Task<IEnumerable<FeedbackNps>> GetUnanalyzedFeedbacksAsync();
     }
 }

@@ -1,8 +1,10 @@
 using Feedback.Application.Interfaces;
+using Feedback.Application.Interfaces.Services;
 using Feedback.Application.Services;
 using Feedback.Domain.Repositories;
 using Feedback.Infrastructure.Context;
 using Feedback.Infrastructure.Persistence;
+using Feedback.Infrastructure.Services;
 using Feedback.Infrastructure.Workers;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,7 +12,6 @@ using System;
 var builder = WebApplication.CreateBuilder(args);
 
 //CORS
-
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 builder.Services.AddCors(options =>
@@ -37,12 +38,14 @@ builder.Services.AddScoped<IFeedbackNpsService, FeedbackNpsService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<ISentimentAnalysisService, OpenAISentimentAnalysisService>();
 
 
 
 
-//Add NpsProcessingWorker como hosted service
+//Add Workers como hosted service
 builder.Services.AddHostedService<NpsProcessingWorker>();
+builder.Services.AddHostedService<SentimentAnalysisWorker>();
 
 
 

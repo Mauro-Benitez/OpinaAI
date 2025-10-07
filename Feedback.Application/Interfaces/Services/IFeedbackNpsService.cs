@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Feedback.Application.Interfaces
+namespace Feedback.Application.Interfaces.Services
 {
     public interface IFeedbackNpsService
     {
