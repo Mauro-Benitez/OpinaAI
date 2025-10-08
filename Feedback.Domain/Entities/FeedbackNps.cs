@@ -16,6 +16,7 @@ namespace Feedback.Domain.Entities
         public string? Comment { get; private set; }
         public DateTime SubmittedDate { get; private set; }
         public Sentiment Sentiment { get; private set; } 
+        public string? Topics { get; private set; }
 
         public FeedbackNps()
         {
@@ -39,12 +40,21 @@ namespace Feedback.Domain.Entities
             Score = score;
             Comment = comment;
             SubmittedDate = DateTime.UtcNow;
-            Sentiment = Sentiment.NotAnalyzed;  
+            Sentiment = Sentiment.NotAnalyzed;
+            Topics = null;
         }
 
         public void SetSentiment(Sentiment sentiment)
         {
             Sentiment = sentiment;
+        }
+
+        public void SetTopics(IEnumerable<string> topics)
+        {
+            if(topics != null && topics.Any())
+            {
+                Topics = string.Join(";", topics);
+            }
         }
     }
 }

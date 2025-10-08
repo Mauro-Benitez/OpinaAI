@@ -14,7 +14,7 @@ namespace Feedback.Application.InputModels
         [Range(0, 10, ErrorMessage = "O Score deve ser um número inteiro entre 0 e 10.")]
         public int Score { get; set; }
 
-        [StringLength(100, MinimumLength = 3, ErrorMessage = "Name must be between 2 and 50 characters.")]
+        //[StringLength(100, MinimumLength = 3, ErrorMessage = "Name must be between 2 and 50 characters.")]
         public string? Comment { get; set; }
         public DateTime SubmittedDate { get; set; }
     }

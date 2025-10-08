@@ -47,8 +47,10 @@ namespace Feedback.Infrastructure.Workers
                             {
                                 if (!string.IsNullOrEmpty(feedback.Comment))
                                 {
-                                    var sentiment = await sentimentService.AnalizeTextAsync(feedback.Comment);
-                                    feedback.SetSentiment(sentiment);
+                                    var analysisResult = await sentimentService.AnalizeTextAsync(feedback.Comment);
+                                    feedback.SetSentiment(analysisResult.Sentiment);
+                                    feedback.SetTopics(analysisResult.Topics); 
+
                                 }
                             }
 
