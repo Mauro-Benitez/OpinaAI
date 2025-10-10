@@ -56,7 +56,7 @@ namespace Feedback.Infrastructure.Workers
 
                             //Salva todas as alterações de uma vez
                             await unitOfWorker.SaveChangesAsync(stoppingToken);
-                            _logger.LogInformation("Análise de sentimento comcluida e salva para {Count} feedbacks",feedbackToAnalyze.Count());
+                            _logger.LogInformation("Análise de sentimento concluida e salva para {Count} feedbacks",feedbackToAnalyze.Count());
                         }
                     }
                 }

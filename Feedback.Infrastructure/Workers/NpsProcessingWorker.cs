@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Feedback.Infrastructure.Workers
 {
+
+    //Working responsavel por calcular o NPS mensalmente e salvar na tabela Reports
     public class NpsProcessingWorker : BackgroundService
     {
         private readonly ILogger<NpsProcessingWorker> _logger;
@@ -100,7 +102,7 @@ namespace Feedback.Infrastructure.Workers
 
                 // Espera 24 horas para a próxima execução               
 
-                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
 
             }
 

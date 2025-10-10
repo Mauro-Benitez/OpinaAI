@@ -1,6 +1,7 @@
 using Feedback.Application.Interfaces;
 using Feedback.Application.Interfaces.Services;
 using Feedback.Application.Services;
+using Feedback.Application.Services_Implementation;
 using Feedback.Domain.Repositories;
 using Feedback.Infrastructure.Context;
 using Feedback.Infrastructure.Persistence;
@@ -39,6 +40,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<ISentimentAnalysisService, OpenAISentimentAnalysisService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<NpsCalculatorService>();
+
 
 
 

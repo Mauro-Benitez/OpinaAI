@@ -14,10 +14,14 @@ namespace Feedback.Infrastructure.Services
         private readonly ILogger<OpenAISentimentAnalysisService> _logger;
         const string INSTRUCTIONS = @"
                 Você é um especialista em análise de feedback de clientes.
-                Analise o comentário a seguir e retorne um JSON com os seguintes campos:
+                Sua tarefa é analisar o comentário de um cliente e retornar um JSON com os campos 'sentiment' e 'topics'.
                 - 'sentiment': classifique estritamente como 'Positivo', 'Neutro' ou 'Negativo'.
-                - 'topics': uma lista de até 3 strings (em português) com os principais tópicos ou palavras-chave mencionados. Se não houver tópicos claros, retorne uma lista vazia.
-                O JSON deve ser válido.";
+                - 'topics': extraia de 1 a 3 conceitos ou assuntos principais mencionados. Os tópicos devem ser concisos e representar a causa raiz do comentário, não apenas palavras-chave genéricas.
+
+                Aqui está um exemplo: 
+                O usuário enviou o seguinte feedback : A interface do app é linda e fácil de usar, mas a entrega do meu pedido demorou demais. 
+                Você responderia deste jeito: { \""sentiment\"": \""Neutro\"", \""topics\"": [\""Interface do App\"", \""Tempo de Entrega\""] }";
+                    
 
         public OpenAISentimentAnalysisService(IConfiguration configuration, ILogger<OpenAISentimentAnalysisService> logger)
         {
