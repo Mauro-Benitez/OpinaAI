@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Feedback.Infrastructure.Workers
 {
+
+    //Working responsavel por analisar os sentimentos dos feedbacks com comentarios salvos no banco
     public class SentimentAnalysisWorker : BackgroundService
     {
         private readonly ILogger<SentimentAnalysisWorker> _logger;
@@ -64,9 +66,11 @@ namespace Feedback.Infrastructure.Workers
                 {
                     _logger.LogInformation(ex, "Ocorreu um erro no Sentiment Analysis Worker");
                 }
+
+                await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+            
 
             
         }

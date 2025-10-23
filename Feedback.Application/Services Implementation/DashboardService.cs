@@ -21,9 +21,19 @@ namespace Feedback.Application.Services_Implementation
 
         public async Task<DashboardSummaryDTO> GetLastMonthSummary()
         {
+            //Data atual
             var today = DateTime.UtcNow;
-            var startDate = DateTime.SpecifyKind(new DateTime(today.Year, today.Month, 1).AddMonths(-1), DateTimeKind.Utc);
-            var endDate = DateTime.SpecifyKind(startDate.AddMonths(1).AddTicks(-1), DateTimeKind.Utc);
+
+            //Pegamos o primeiro dia do mês atual (ex: 01/09/2025)
+            var firstDayOfCurrentMonth = new DateTime(today.Year, today.Month, 1);
+
+            //Subtraimos um mês para obter o primeiro dia do mês anterior (ex: 01/08/2025)
+            var firstDayOfPreviusMonth = firstDayOfCurrentMonth.AddMonths(-1);
+
+
+            //Especificamos que as datas são UTC
+            var startDate = DateTime.SpecifyKind(firstDayOfPreviusMonth, DateTimeKind.Utc);
+            var endDate = DateTime.SpecifyKind(firstDayOfCurrentMonth, DateTimeKind.Utc);
 
             var feedbacks = await _feedbackRepository.GetFeedbacksByPeriodAsync(startDate, endDate);
             var feedbackList = feedbacks.ToList();
