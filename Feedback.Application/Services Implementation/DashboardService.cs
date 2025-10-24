@@ -9,50 +9,57 @@ namespace Feedback.Application.Services_Implementation
 {
     public class DashboardService : IDashboardService
     {
-        private readonly NpsCalculatorService _npsCalculatorService;
+        //private readonly NpsCalculatorService _npsCalculatorService;
         private readonly IFeedbackNpsRepository _feedbackRepository;
+        private readonly IReportRepository _reportRepository;
 
-        public DashboardService(NpsCalculatorService npsCalculatorService, IFeedbackNpsRepository feedbackRepository)
+        public DashboardService(IReportRepository reportRepository, IFeedbackNpsRepository feedbackRepository)
         {
-            _npsCalculatorService = npsCalculatorService;
+            _reportRepository = reportRepository;
             _feedbackRepository = feedbackRepository;
         }
 
 
         public async Task<DashboardSummaryDTO> GetLastMonthSummary()
         {
-            //Data atual
-            var today = DateTime.UtcNow;
+            var latestReport = await _reportRepository.GetLatestMonthlyReportAsync();
 
-            //Pegamos o primeiro dia do mês atual (ex: 01/09/2025)
-            var firstDayOfCurrentMonth = new DateTime(today.Year, today.Month, 1);
+            DateTime startDate, endDate;
+            if(latestReport!=null)
+            {
+                startDate = latestReport.ReportMonth;
+                endDate = latestReport.ReportMonth.AddMonths(1).AddTicks(-1);
+            }
+            else
+            {
+                var today = DateTime.UtcNow;
+                startDate = DateTime.SpecifyKind(new DateTime(today.Year, today.Month, 1).AddMonths(-1), DateTimeKind.Utc);
+                endDate = DateTime.SpecifyKind(startDate.AddMonths(1).AddTicks(-1), DateTimeKind.Utc);
 
-            //Subtraimos um mês para obter o primeiro dia do mês anterior (ex: 01/08/2025)
-            var firstDayOfPreviusMonth = firstDayOfCurrentMonth.AddMonths(-1);
-
-
-            //Especificamos que as datas são UTC
-            var startDate = DateTime.SpecifyKind(firstDayOfPreviusMonth, DateTimeKind.Utc);
-            var endDate = DateTime.SpecifyKind(firstDayOfCurrentMonth, DateTimeKind.Utc);
+            }
 
             var feedbacks = await _feedbackRepository.GetFeedbacksByPeriodAsync(startDate, endDate);
             var feedbackList = feedbacks.ToList();
 
-            if (!feedbackList.Any())
+            if(!feedbackList.Any() && latestReport == null)
             {
-                return new DashboardSummaryDTO(); // Retorna um resumo vazio
+                return new DashboardSummaryDTO();// Retorna um resumo vazio
             }
 
-            //Calcular o Score NPS
-            var npsScore = _npsCalculatorService.CalculateNps(feedbackList.Select(f => f.Score).ToList());
+
+            //Usa o Score do relatorio, se não houver o padrão e 0
+            var npsScore = latestReport?.FinalNpsScore ?? 0;
+
 
             //Contar Sentimentos
             var positiveCount = feedbackList.Count(f => f.Sentiment == Sentiment.Positive);
             var negativeCount = feedbackList.Count(f => f.Sentiment == Sentiment.Negative);
             var neutralCount = feedbackList.Count(f => f.Sentiment == Sentiment.Neutral);
+            var feedbackWithoutCommentsCount = feedbackList.Count(f => f.Comment == null || f.Comment == "");
 
             //Contar e agrupar os Top Tópicos
-            var topicCounts = new Dictionary<string, int>();
+            var topicCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
             var feedbacksWithTopics = feedbackList.Where(f => !string.IsNullOrWhiteSpace(f.Topics));
 
             foreach(var feedback in feedbacksWithTopics)
@@ -71,6 +78,7 @@ namespace Feedback.Application.Services_Implementation
                     }
                 }
             }
+
             //Ordena pelos topicos mais frequentes, pega os 5 primeiros converte em um objeto TopicCountDTOe retorna como uma lista.
             var topTopics = topicCounts.OrderByDescending(kvp => kvp.Value)
                                        .Take(5)
@@ -86,6 +94,7 @@ namespace Feedback.Application.Services_Implementation
                 PositiveCount = positiveCount,
                 NeutralCount = neutralCount,
                 NegativeCount = negativeCount,
+                FeedbackWithoutCommentsCount = feedbackWithoutCommentsCount,
                 TopTopics = topTopics
             };
 

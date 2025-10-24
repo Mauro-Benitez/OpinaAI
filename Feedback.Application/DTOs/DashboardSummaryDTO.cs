@@ -13,9 +13,8 @@ namespace Feedback.Application.DTOs
         public int PositiveCount { get; set; }
         public int NegativeCount { get; set; }
         public int NeutralCount { get; set; }
-        public List<TopicCountDTO> TopTopics { get; set; } = new List<TopicCountDTO>();
-
-              
+        public int FeedbackWithoutCommentsCount { get; set; }
+        public List<TopicCountDTO> TopTopics { get; set; } = new List<TopicCountDTO>();            
 
 
     }
