@@ -1,37 +1,45 @@
 
-﻿using Feedback.Application.Interfaces;
+using Amazon.S3;
+using Amazon.S3.Model;
+using CsvHelper;
+using Feedback.Application.Interfaces;
 using Feedback.Application.Services;
 using Feedback.Domain.Entities;
 using Feedback.Domain.Repositories;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Formats.Asn1;
+using System.Globalization;
 
 
 
 namespace Feedback.Infrastructure.Workers
 {
 
-    //Working responsavel por calcular o NPS periodicamente e salvar na tabela Reports
+    //Worker responsavel por calcular o NPS periodicamente e salvar na tabela Reports
     public class NpsProcessingWorker : BackgroundService
     {
         private readonly ILogger<NpsProcessingWorker> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IConfiguration _configuration;
 
-        public NpsProcessingWorker(ILogger<NpsProcessingWorker> logger, IServiceScopeFactory serviceScopeFactory)
+        public NpsProcessingWorker(ILogger<NpsProcessingWorker> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
+            _configuration = configuration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("NPS Processing Worker esta iniciando em: {time}", DateTimeOffset.Now);
+            _logger.LogInformation("NpsProcessingWorker esta iniciando em: {time}", DateTimeOffset.Now);
 
             while (!stoppingToken.IsCancellationRequested)
             {
 
-                // ... Lógica do trabalho ...
+                //logica do Worker
 
                 _logger.LogInformation("Worker executando a tarefa periódica em: {time}", DateTimeOffset.Now);
                 try
@@ -48,19 +56,15 @@ namespace Feedback.Infrastructure.Workers
 
                         //Data atual
                         var today = DateTime.UtcNow;
-
-
-                        //Pegamos o primeiro dia do mês atual (ex: 01/09/2025)
-                        var firstDayOfCurrentMonth = new DateTime(today.Year, today.Month, 1);
-
-                        //Subtraimos um mês para obter o primeiro dia do mês anterior (ex: 01/08/2025)
+                        
+                        //Especifica o mes anterior
+                        var firstDayOfCurrentMonth = new DateTime(today.Year, today.Month, 1);                        
                         var firstDayOfPreviusMonth = firstDayOfCurrentMonth.AddMonths(-1);
 
-                        //Especificamos que as datas são UTC
+                        
                         var startDate = DateTime.SpecifyKind(firstDayOfPreviusMonth, DateTimeKind.Utc);
-                        var endDate = DateTime.SpecifyKind(firstDayOfCurrentMonth, DateTimeKind.Utc);                
-
-                        // Busca os feedbacks do período
+                        var endDate = DateTime.SpecifyKind(firstDayOfCurrentMonth, DateTimeKind.Utc);             
+                                                
                         var feedbacks = await feedbackRepository.GetFeedbacksByPeriodAsync(startDate, endDate);
 
                         if (feedbacks.Any())
@@ -69,22 +73,28 @@ namespace Feedback.Infrastructure.Workers
                             var npsScore = calculator.CalculateNps(scores);
 
                             _logger.LogInformation("NPS Calculado para o período de {StartDate} a {EndDate}: {Score}", startDate.ToShortDateString(), endDate.ToShortDateString(), npsScore.ToString("F2"));
-
-
-                            // ----- Logica para salvar o relatório
-
-                            // 1. Cria a nova entidade de relatório
+                                                        
+                            
                             var report = new Report(startDate, npsScore);
 
-                            // 2. Adiciona o relatório ao repositório
-                            await reportRepository.AddAsync(report);
+                            try
+                            {
+                                var csvStream = GenerateCsvReport(feedbacks);
+                                var reportFileName = $"NPS_Report_{startDate:yyyy-MM}.csv";
+                                var fileUrl = await UploadToS3Async(csvStream, reportFileName);                               
+                                report.SetFileUrl(fileUrl);
+                                _logger.LogInformation("Relatório salvo no S3: {Path}", fileUrl);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Falha ao gerar e salvar o relatório CSV no S3.");
+                            }
 
-                            // 3. Salva as mudanças no banco de dados
+                            await reportRepository.AddAsync(report);                           
                             await unitOfWork.SaveChangesAsync(stoppingToken);
 
                             _logger.LogInformation("Relatório do mês {Month} salvo com sucesso.", startDate.ToString("yyyy-MM"));
-
-                            // ------------------------------------                           
+                         
 
                         }
                         else
@@ -100,13 +110,75 @@ namespace Feedback.Infrastructure.Workers
                     _logger.LogError(ex, "Ocorreu um erro ao processar o NPS do período.");
                 }
 
-                // Espera 24 horas para a próxima execução               
+                //Time para próxima execução           
 
-                await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
 
             }
 
-            _logger.LogInformation("NPS Processing Worker está parando.");
+            _logger.LogInformation("NpsProcessingWorker está parando.");
         }
+
+        private Stream GenerateCsvReport(IEnumerable<FeedbackNps> feedbacks)
+        {
+            var memoryStream = new MemoryStream();
+
+            using (var writer = new StreamWriter(memoryStream,leaveOpen:true))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                //cabeçalho
+                csv.WriteField("Data");
+                csv.WriteField("Score");
+                csv.WriteField("Sentimento");
+                csv.WriteField("Topicos");
+                csv.NextRecord();
+
+                //Dados
+                foreach (var feedback in feedbacks)
+                {
+                    csv.WriteField(feedback.SubmittedDate.ToString("yyyy-MM-dd HH:mm"));
+                    csv.WriteField(feedback.Score);
+                    csv.WriteField(feedback.Sentiment.ToString());
+                    csv.WriteField(feedback.Topics);
+                    csv.NextRecord();
+                }
+
+
+            }
+
+            memoryStream.Position = 0;
+            return memoryStream;
+        }
+
+
+        private async Task<string> UploadToS3Async(Stream fileStream, string fileName)
+        {
+            var awsConfig = _configuration.GetSection("AWS:S3");
+            var bucketName = awsConfig["BucketName"];
+            var accessKey = awsConfig["AccessKey"];
+            var secretKey = awsConfig["SecretKey"];
+            var region = Amazon.RegionEndpoint.GetBySystemName(awsConfig["Region"]);
+
+            using (var client = new AmazonS3Client(accessKey, secretKey, region))
+            {
+                var request = new PutObjectRequest
+                {
+                    InputStream = fileStream,
+                    BucketName = bucketName,
+                    Key = fileName,
+                    
+                };
+                await client.PutObjectAsync(request);
+
+                return $"https://{bucketName}.s3.{region.SystemName}.amazonaws.com/{fileName}";
+            }
+
+
+        }
+
     }
+
+
+       
+
 }
