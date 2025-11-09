@@ -95,7 +95,9 @@ namespace Feedback.Application.Services_Implementation
                 NeutralCount = neutralCount,
                 NegativeCount = negativeCount,
                 FeedbackWithoutCommentsCount = feedbackWithoutCommentsCount,
+                ReportFileKey = latestReport?.FileUrl,
                 TopTopics = topTopics
+                
             };
 
         }

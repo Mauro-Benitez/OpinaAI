@@ -9,6 +9,7 @@ namespace Feedback.Application.Interfaces.Services
 {
     public interface IReportService
     {
+
         Task<ReportDTO> GetLatestMonthlyReportAsync();
     }
 }

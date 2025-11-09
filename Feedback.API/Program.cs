@@ -41,8 +41,8 @@ builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<ISentimentAnalysisService, OpenAISentimentAnalysisService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IStorageService, S3StorageService>();
 builder.Services.AddScoped<NpsCalculatorService>();
-
 
 
 

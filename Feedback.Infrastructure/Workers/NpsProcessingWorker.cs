@@ -3,6 +3,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using CsvHelper;
 using Feedback.Application.Interfaces;
+using Feedback.Application.Interfaces.Services;
 using Feedback.Application.Services;
 using Feedback.Domain.Entities;
 using Feedback.Domain.Repositories;
@@ -18,7 +19,7 @@ using System.Globalization;
 namespace Feedback.Infrastructure.Workers
 {
 
-    //Worker responsavel por calcular o NPS periodicamente e salvar na tabela Reports
+    //Worker responsavel por calcular o NPS periodicamente, salvar na tabela Reports e salvar um CSV no Bucket
     public class NpsProcessingWorker : BackgroundService
     {
         private readonly ILogger<NpsProcessingWorker> _logger;
@@ -47,9 +48,10 @@ namespace Feedback.Infrastructure.Workers
                     using(var scope = _serviceScopeFactory.CreateScope())
                     {
                         var feedbackRepository = scope.ServiceProvider.GetRequiredService<IFeedbackNpsRepository>();
-
                         var reportRepository = scope.ServiceProvider.GetRequiredService<IReportRepository>(); 
                         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                        var s3Service = scope.ServiceProvider.GetRequiredService<IStorageService>();
+                        
 
                         var calculator = new NpsCalculatorService();
 
@@ -81,9 +83,9 @@ namespace Feedback.Infrastructure.Workers
                             {
                                 var csvStream = GenerateCsvReport(feedbacks);
                                 var reportFileName = $"NPS_Report_{startDate:yyyy-MM}.csv";
-                                var fileUrl = await UploadToS3Async(csvStream, reportFileName);                               
-                                report.SetFileUrl(fileUrl);
-                                _logger.LogInformation("Relatório salvo no S3: {Path}", fileUrl);
+                                var fileKey = await s3Service.UploadToS3Async(csvStream, reportFileName);                               
+                                report.SetFileUrl(fileKey);
+                                _logger.LogInformation("Relatório CSV salvo no S3 com a chave {Key}", fileKey);
                             }
                             catch (Exception ex)
                             {
@@ -126,7 +128,7 @@ namespace Feedback.Infrastructure.Workers
             using (var writer = new StreamWriter(memoryStream,leaveOpen:true))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
-                //cabeçalho
+                //Cabeçalho
                 csv.WriteField("Data");
                 csv.WriteField("Score");
                 csv.WriteField("Sentimento");
@@ -148,33 +150,7 @@ namespace Feedback.Infrastructure.Workers
 
             memoryStream.Position = 0;
             return memoryStream;
-        }
-
-
-        private async Task<string> UploadToS3Async(Stream fileStream, string fileName)
-        {
-            var awsConfig = _configuration.GetSection("AWS:S3");
-            var bucketName = awsConfig["BucketName"];
-            var accessKey = awsConfig["AccessKey"];
-            var secretKey = awsConfig["SecretKey"];
-            var region = Amazon.RegionEndpoint.GetBySystemName(awsConfig["Region"]);
-
-            using (var client = new AmazonS3Client(accessKey, secretKey, region))
-            {
-                var request = new PutObjectRequest
-                {
-                    InputStream = fileStream,
-                    BucketName = bucketName,
-                    Key = fileName,
-                    
-                };
-                await client.PutObjectAsync(request);
-
-                return $"https://{bucketName}.s3.{region.SystemName}.amazonaws.com/{fileName}";
-            }
-
-
-        }
+        }        
 
     }
 

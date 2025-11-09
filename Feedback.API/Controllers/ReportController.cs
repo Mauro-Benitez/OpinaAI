@@ -1,4 +1,5 @@
-﻿using Feedback.Application.DTO;
+﻿using Amazon.S3;
+using Feedback.Application.DTO;
 using Feedback.Application.Interfaces.Services;
 using Feedback.Domain.Entities;
 using Feedback.Domain.Repositories;
@@ -12,11 +13,13 @@ namespace Feedback.API.Controllers
     {
         private readonly IReportService _reportService;
         private readonly IDashboardService _dashboardService;
+        private readonly IStorageService _storageService;
 
-        public ReportController(IReportService reportService, IDashboardService dashboardService)
+        public ReportController(IReportService reportService, IDashboardService dashboardService, IStorageService storageService)
         {
             _reportService = reportService;
             _dashboardService = dashboardService;
+            _storageService = storageService;
         }
 
         /// <summary>
@@ -56,6 +59,38 @@ namespace Feedback.API.Controllers
 
             // Se encontrou, retornamos 200 OK com os dados do relatório.
             return Ok(report);
+        }
+
+
+
+        [HttpGet("Download")]
+        [ProducesResponseType(StatusCodes.Status302Found)] 
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DownloadReport([FromQuery] string fileKey)
+        {
+            if (string.IsNullOrEmpty(fileKey))
+            {
+                return BadRequest("O nome do arquivo (filekey) é obrigatório.");
+            }
+
+            try
+            {
+                var presignedUrl = await _storageService.GetPresignedUrlAsync(fileKey);
+                return Redirect(presignedUrl);
+            }
+            catch(AmazonS3Exception ex)
+            {
+                if(ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    return NotFound("O arquivo solicitado não foi encontrado");
+                }
+                throw;
+            }
+
+            catch (Exception ex)            {
+               
+                return StatusCode(500, $"Erro interno ao processar a solicitação.{ex.Message}");
+            }
         }
 
 
