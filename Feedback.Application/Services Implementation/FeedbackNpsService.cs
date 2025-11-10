@@ -25,7 +25,9 @@ namespace Feedback.Application.Services
            var feedback = new FeedbackNps(
                 feedbackInput.UserId,
                 feedbackInput.Score,
-                feedbackInput.Comment
+                feedbackInput.Comment,
+                feedbackInput.Name
+
             );
 
             var result =  await _feedbackNpsRepository.AddAsync(feedback);
@@ -86,6 +88,7 @@ namespace Feedback.Application.Services
             {
                                                                                                                                                                                                                                      Id = feedback.Id,
                 UserId = feedback.UserId,
+                Name = feedback.Name,
                 Score = feedback.Score,
                 Comment = feedback.Comment,
                 SubmittedDate = feedback.SubmittedDate

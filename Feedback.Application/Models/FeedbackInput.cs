@@ -10,6 +10,7 @@ namespace Feedback.Application.InputModels
     public class FeedbackInput
     {
         public string UserId { get; set; }
+        public string Name { get; set; }
 
         [Range(0, 10, ErrorMessage = "O Score deve ser um número inteiro entre 0 e 10.")]
         public int Score { get; set; }

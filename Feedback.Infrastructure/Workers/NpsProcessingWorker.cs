@@ -114,7 +114,7 @@ namespace Feedback.Infrastructure.Workers
 
                 //Time para próxima execução           
 
-                await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
 
             }
 

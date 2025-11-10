@@ -43,8 +43,8 @@ namespace Feedback.Domain.Entities
 
         public Report(DateTime reportMonth, double finalNpsScore)
         {
-            var starMonth = new DateTime(reportMonth.Year, reportMonth.Month, 1);
-            ReportMonth = DateTime.SpecifyKind(starMonth, DateTimeKind.Utc);
+            //var starMonth = new DateTime(reportMonth.Year, reportMonth.Month, 1);
+            ReportMonth = reportMonth;
             FinalNpsScore = finalNpsScore;
             ProcessingDate = DateTime.UtcNow;
             FileUrl = null;

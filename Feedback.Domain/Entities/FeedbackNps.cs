@@ -12,6 +12,7 @@ namespace Feedback.Domain.Entities
 
         public Guid Id { get; private set; }
         public string UserId { get; private set; }
+        public string Name { get; private set; }
         public int Score { get; private set; }
         public string? Comment { get; private set; }
         public DateTime SubmittedDate { get; private set; }
@@ -22,13 +23,15 @@ namespace Feedback.Domain.Entities
         {
         }
 
-        public FeedbackNps(string userId, int score, string? comment)
+        public FeedbackNps(string userId, int score, string? comment, string name)
         {
 
             if (string.IsNullOrWhiteSpace(userId))
-            {
                 throw new ArgumentException("UserId cannot be null or empty.", nameof(userId));
-            }
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Name cannot be null or empty.", nameof(name));
+
 
             if (score < 0 || score > 10)
             {
@@ -42,6 +45,7 @@ namespace Feedback.Domain.Entities
             SubmittedDate = DateTime.UtcNow;
             Sentiment = Sentiment.NotAnalyzed;
             Topics = null;
+            Name = name;
         }
 
         public void SetSentiment(Sentiment sentiment)

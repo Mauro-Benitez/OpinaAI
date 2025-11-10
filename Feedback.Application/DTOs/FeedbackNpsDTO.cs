@@ -11,6 +11,7 @@ namespace Feedback.Application.DTO
     {
         public Guid Id { get; set; }
         public string UserId { get; set; }
+        public string Name { get; set; }
 
         [Range(0, 10, ErrorMessage = "O Score deve ser um número inteiro entre 0 e 10.")]
         public int Score { get; set; }
