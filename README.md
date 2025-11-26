@@ -9,7 +9,7 @@ Este projeto é  um sistema completo para coleta, processamento e análise de fe
 
 - Análise com IA: Worker dedicado que consome a API da OpenAI (GPT) para classificar feedbacks como Positivo/Neutro/Negativo e extrair tópicos-chave (ex: "Atendimento", "Lentidão").
 
-- Relatórios Detalhados: Geração automática de relatórios em PDF salvos localmente (ou S3).
+- Relatórios Detalhados: Geração automática de relatórios em CSV salvos em um Bucket S3.
 
 - Endpoints para visualizar o caclulos do NPS, distribuição de sentimentos e tópicos.
 
@@ -19,7 +19,9 @@ Este projeto é  um sistema completo para coleta, processamento e análise de fe
 - Arquitetura Limpa (Clean Architecture) & DDD
 
 - Entity Framework Core (PostgreSQL)
-
+  
+- Bucket S3
+  
 - Background Services (IHostedService para Workers)
 
 - OpenAI API (Integração de IA)
