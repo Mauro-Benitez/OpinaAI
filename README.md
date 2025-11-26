@@ -37,5 +37,6 @@ O sistema segue os princípios da Clean Architecture, dividindo as responsabilid
 
 
 
-<img width="584" height="429" alt="OpinaAI" src="https://github.com/user-attachments/assets/d9f6e9f6-4814-4330-8044-b1c2917a53df" />
+![OpinaAI](https://github.com/user-attachments/assets/affec56c-cf51-4c21-b591-bcef8c925e43)
+
 
