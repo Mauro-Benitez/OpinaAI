@@ -33,9 +33,9 @@ O sistema segue os princípios da Clean Architecture, dividindo as responsabilid
 
 - Application: Interfaces, Serviços e DTOs.
 
-- Infrastructure: Implementação de Repositórios, Contexto do Banco, Clientes de IA e Workers.
+- Infrastructure: Implementação de Repositórios, Contexto do Banco,  IA e Workers.
 
-- API: Controllers e Endpoints REST.
+- API: Controllers e Endpoints.
 
 
 
