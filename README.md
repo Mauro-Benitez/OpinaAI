@@ -1,6 +1,6 @@
 # Sistema de Feedbacks NPS com IA (OpinaAI)
 
-Este projeto é um sistema de pedidos baseado em uma arquitetura moderna de microserviços, utilizando AWS e comunicação assíncrona.
+Este projeto é  um sistema completo para coleta, processamento e análise de feedbacks via NPS (Net Promoter Score). O diferencial do sistema é o uso de Inteligência Artificial (OpenAI) para analisar automaticamente o sentimento e extrair tópicos relevantes dos comentários dos usuários.
 
 # 🚀Funcionalidades Principais
 - Coleta de Feedback: API de alta performance para receber notas (0-10) e comentários.
